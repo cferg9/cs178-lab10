@@ -11,16 +11,52 @@ table = dynamodb.Table('Movies')
 
 def create_movie():
     """
-    Prompt user for a Movie Title.
-    Add the movie to the database with the title and an empty Ratings list.
+    Prompt the user for movie information and add it to the DynamoDB table.
     """
-    print("creating a movie")
+
+    title = input("Enter movie title: ").strip()
+    genre = input("Enter genre: ").strip()
+    year = input("Enter release year: ").strip()
+
+    table.put_item(
+        Item={
+            "Title": title,
+            "Genre": genre,
+            "Year": year
+        }
+    )
+
+    print(f"Movie '{title}' added successfully.")
 
 def print_all_movies():
-    """
-    Display all movies in the database.
-    """
-    print("display all movies")
+    """Scan the entire Movies table and print each item."""
+    
+    
+    # scan() retrieves ALL items in the table.
+    # For large tables you'd use query() instead — but for our small
+    # dataset, scan() is fine.
+    response = table.scan()
+    items = response.get("Items", [])
+    
+    if not items:
+        print("No movies found. Make sure your DynamoDB table has data.")
+        return
+    
+    print(f"Found {len(items)} movie(s):\n")
+    for movie in items:
+        print(movie)
+
+
+def main():
+    print("===== Reading from DynamoDB =====\n")
+    print_all_movies()
+
+
+if __name__ == "__main__":
+    main()
+
+
+        
 
 def update_rating():
     """
