@@ -99,10 +99,28 @@ def delete_movie():
 
 def query_movie():
     """
-    Prompt user for a Movie Title.
-    Print out the average of all ratings in the movie's Ratings list.
+    Prompt the user for a movie title and print the average rating.
+    Handles cases where the movie doesn't exist or has no ratings.
     """
-    print("query movie")
+    try:
+        title = input("Enter the movie title to query: ").strip()
+        response = table.get_item(Key={"Title": title})
+        movie = response.get("Item")
+
+        if not movie:
+            print("movie not found")
+            return
+
+        ratings_list = movie.get("Ratings", [])
+        if not ratings_list:
+            print("movie has no ratings")
+            return
+
+        average = sum(ratings_list) / len(ratings_list)
+        print(f"Average rating for '{title}' is {average:.2f}")
+
+    except Exception:
+        print("error querying movie")
 
 def print_menu():
     print("----------------------------")
